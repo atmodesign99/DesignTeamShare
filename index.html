@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="محاسبه‌گر سهم مشارکت اعضای پروژه بر پایه نرخ‌نامه، زیربخش‌های منطقی، مدیریت و بازاریابی" />
+    <link rel="icon" href="data:," />
+    <title>محاسبه‌گر سهم مشارکت اعضای پروژه</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero no-print">
+        <nav class="topbar">
+          <div class="brand">
+            <span class="brand-mark">◐</span>
+            <span>Share Split</span>
+          </div>
+          <div class="top-actions">
+            <button class="ghost" id="resetBtn" type="button">محاسبه جدید</button>
+            <button class="ghost" id="saveArchiveBtn" type="button">ثبت در آرشیو</button>
+            <button class="ghost" id="copyReportBtn" type="button">کپی گزارش</button>
+            <button class="primary" id="printBtn" type="button">چاپ / PDF</button>
+          </div>
+        </nav>
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">مکمل منشور همکاری استودیو</p>
+            <h1>محاسبه‌گر سهم مشارکت اعضای پروژه</h1>
+            <p class="hero-text">بسته‌های کاری را از نرخ‌نامه انتخاب کن، پروژه‌های بزرگ را با الگوهای پیشنهادی به زیربخش‌های منطقی بشکن، مدیریت و بازاریابی را هم به‌عنوان بسته‌های درصدی حساب کن و نسبت مشارکت نهایی هر نفر را بگیر.</p>
+          </div>
+          <div class="hero-card">
+            <span>جمع وزن بسته‌های پروژه</span>
+            <strong id="heroTotalWeight">۰</strong>
+            <small id="heroSubtitle">بر اساس تعرفه × پیچیدگی × زیربخش</small>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="workspace no-print">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <span class="step">۱</span>
+                <h2>اطلاعات پروژه</h2>
+              </div>
+              <p>عدد پروژه اختیاری است؛ بدون آن هم نسبت‌ها محاسبه می‌شوند.</p>
+            </div>
+
+            <div class="field-grid two">
+              <label class="field">
+                <span>نام پروژه</span>
+                <input id="projectName" type="text" placeholder="مثلاً هویت برند آرژان" autocomplete="off" />
+              </label>
+              <label class="field">
+                <span>کارفرما</span>
+                <input id="clientName" type="text" placeholder="مثلاً آرژان" autocomplete="off" />
+              </label>
+            </div>
+
+            <div class="field-grid three">
+              <label class="field">
+                <span>مبلغ پروژه (تومان)</span>
+                <input id="projectAmount" type="number" min="0" step="1000000" placeholder="مثلاً 100000000" />
+              </label>
+              <label class="field">
+                <span>هزینه‌های مستقیم (تومان)</span>
+                <input id="directCosts" type="number" min="0" step="1000000" placeholder="مثلاً 20000000" />
+              </label>
+              <label class="field">
+                <span>سهم صندوق استودیو</span>
+                <div class="discount-row">
+                  <input id="fundPercent" type="range" min="0" max="30" step="1" value="15" />
+                  <strong id="fundLabel">۱۵٪</strong>
+                </div>
+              </label>
+            </div>
+            <p class="hint">طبق منشور: سود خالص = مبلغ − هزینه‌ی مستقیم؛ سهم صندوق کسر و باقی بین اعضای همین پروژه به نسبت مشارکت تقسیم می‌شود.</p>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <span class="step">۲</span>
+                <h2>اعضای پروژه</h2>
+              </div>
+              <p>حداقل دو عضو اضافه کن؛ بعد هر بسته یا زیربخش را بین اعضا تقسیم کن.</p>
+            </div>
+            <div class="add-service-card">
+              <label class="field service-picker">
+                <span>نام عضو جدید</span>
+                <input id="newMemberName" type="text" placeholder="مثلاً علی" autocomplete="off" />
+              </label>
+              <button class="primary add-service-btn" id="addMemberBtn" type="button">+ افزودن عضو</button>
+            </div>
+            <div class="member-list" id="memberList"></div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <span class="step">۳</span>
+                <h2>بسته‌های کاری از نرخ‌نامه</h2>
+              </div>
+              <p>وزن هر بسته = تعرفه‌ی پایه × تعداد × پیچیدگی. برای پروژه‌های چندبخشی، بسته را به زیربخش‌های وزن‌دار تقسیم کن.</p>
+            </div>
+
+            <div class="field-grid two">
+              <label class="field">
+                <span>دسته خدمت</span>
+                <select id="categorySelect"></select>
+              </label>
+              <label class="field">
+                <span>جست‌وجوی خدمت</span>
+                <input id="serviceSearch" type="search" placeholder="نشانه، بسته‌بندی، سوشال..." autocomplete="off" />
+              </label>
+            </div>
+
+            <div class="add-service-card">
+              <label class="field service-picker">
+                <span>انتخاب خدمت</span>
+                <select id="serviceSelect"></select>
+                <small id="serviceNote" class="helper"></small>
+              </label>
+              <label class="field quantity-picker">
+                <span>تعداد</span>
+                <input id="quantity" type="number" min="0.1" step="0.1" value="1" />
+              </label>
+              <button class="primary add-service-btn" id="addPackageBtn" type="button">+ افزودن بسته</button>
+            </div>
+
+            <div class="custom-package-card">
+              <div class="mini-head"><strong>بسته‌ی خارج از نرخ‌نامه</strong><span class="helper">مثلاً توسعه‌ی وب، موشن، تولید محتوا</span></div>
+              <div class="add-service-card">
+                <label class="field service-picker">
+                  <span>عنوان بسته</span>
+                  <input id="customTitle" type="text" placeholder="مثلاً توسعه‌ی فرانت‌اند" autocomplete="off" />
+                </label>
+                <label class="field quantity-picker">
+                  <span>ارزش معادل (میلیون تومان)</span>
+                  <input id="customBase" type="number" min="0.1" step="0.5" placeholder="مثلاً 60" />
+                </label>
+                <label class="field quantity-picker">
+                  <span>تعداد</span>
+                  <input id="customQty" type="number" min="0.1" step="0.1" value="1" />
+                </label>
+                <button class="primary add-service-btn" id="addCustomBtn" type="button">+ افزودن</button>
+              </div>
+              <p class="hint">ارزش معادل را هم‌مقیاس با نرخ‌نامه بدهید و تعداد را جدا وارد کنید؛ مثلاً ۳ بسته توسعه کوچک، هرکدام معادل ۲۰ میلیون.</p>
+            </div>
+
+            <div class="selected-services-card">
+              <div class="mini-head">
+                <strong>بسته‌های پروژه</strong>
+                <span id="packagesTotalLabel">وزن کل: ۰</span>
+              </div>
+              <div class="selected-services-list" id="packageList"></div>
+              <p class="hint">سهم هر بسته را مستقیم بین اعضا تقسیم کن، یا آن را به زیربخش‌هایی مثل محتوا، Data Visualization، Layout و Key Visual بشکن. جمع تقسیم‌ها و جمع وزن زیربخش‌ها باید ۱۰۰٪ شود.</p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <span class="step">۴</span>
+                <h2>مدیریت پروژه و بازاریابی</h2>
+              </div>
+              <p>هرکدام یک بسته‌ی مجازی‌اند که به‌صورت درصدی از جمع وزن بسته‌های کاری محاسبه می‌شوند.</p>
+            </div>
+
+            <div class="mgmt-card" id="mgmtCard">
+              <label class="checkbox-wrap mgmt-toggle">
+                <input type="checkbox" id="mgmtEnabled" />
+                <span>مدیریت پروژه به‌عنوان بسته‌ی جداگانه حساب شود</span>
+              </label>
+              <div class="mgmt-body" id="mgmtBody">
+                <label class="field mini-field">
+                  <span>درصد مدیریت از جمع وزن بسته‌ها</span>
+                  <div class="percent-input-row">
+                    <input id="mgmtPercent" type="number" min="0" max="100" step="1" value="10" />
+                    <strong>٪</strong>
+                  </div>
+                </label>
+                <div class="inline-actions mgmt-actions">
+                  <button class="small-btn" id="mgmtEqualBtn" type="button">تقسیم مساوی مدیریت</button>
+                </div>
+                <div class="share-grid" id="mgmtShares"></div>
+                <small class="helper" id="mgmtShareStatus"></small>
+              </div>
+            </div>
+
+            <div class="mgmt-card" id="marketingCard">
+              <label class="checkbox-wrap mgmt-toggle">
+                <input type="checkbox" id="marketingEnabled" />
+                <span>بازاریابی و جذب پروژه به‌عنوان بسته‌ی جداگانه حساب شود</span>
+              </label>
+              <div class="mgmt-body" id="marketingBody">
+                <label class="field mini-field">
+                  <span>درصد بازاریابی از جمع وزن بسته‌ها</span>
+                  <div class="percent-input-row">
+                    <input id="marketingPercent" type="number" min="0" max="100" step="1" value="8" />
+                    <strong>٪</strong>
+                  </div>
+                </label>
+                <div class="inline-actions mgmt-actions">
+                  <button class="small-btn" id="marketingEqualBtn" type="button">تقسیم مساوی بازاریابی</button>
+                </div>
+                <div class="share-grid" id="marketingShares"></div>
+                <small class="helper" id="marketingShareStatus"></small>
+              </div>
+            </div>
+
+            <p class="hint">مثلاً اگر جمع وزن بسته‌ها ۱۰۰ باشد و بازاریابی را ۸٪ بزنی، یک بسته‌ی مجازی با وزن ۸ ایجاد می‌شود و بین افرادی که در جذب پروژه نقش داشته‌اند تقسیم می‌شود.</p>
+          </section>
+
+          <section class="panel archive-panel">
+            <div class="section-head">
+              <div>
+                <span class="step">۵</span>
+                <h2>آرشیو پروژه‌ها</h2>
+              </div>
+              <div class="inline-actions">
+                <button class="small-btn" id="exportCsvBtn" type="button">خروجی CSV</button>
+                <button class="small-btn danger" id="clearArchiveBtn" type="button">پاک کردن آرشیو</button>
+              </div>
+            </div>
+            <div class="archive-table-wrap">
+              <table class="archive-table">
+                <thead>
+                  <tr>
+                    <th>تاریخ</th>
+                    <th>پروژه</th>
+                    <th>اعضا و نسبت‌ها</th>
+                    <th>مبلغ پروژه</th>
+                  </tr>
+                </thead>
+                <tbody id="archiveBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <aside class="summary no-print">
+          <section class="result-card final-card">
+            <span>نسبت مشارکت نهایی</span>
+            <div class="ratio-list" id="ratioList"><strong>—</strong></div>
+            <small id="ratioBadge">عضو و بسته اضافه کنید</small>
+          </section>
+
+          <section class="result-card" id="moneyCard">
+            <h3>تقسیم مالی (طبق منشور)</h3>
+            <div class="payment-row"><span>سود خالص پروژه</span><strong id="netProfit">—</strong></div>
+            <div class="payment-row"><span>سهم صندوق استودیو</span><strong id="fundAmount">—</strong></div>
+            <div class="payment-row"><span>استخر قابل‌تقسیم اعضا</span><strong id="poolAmount">—</strong></div>
+            <div id="memberMoneyRows"></div>
+          </section>
+
+          <section class="result-card">
+            <h3>ریز محاسبه</h3>
+            <dl class="calc-breakdown" id="breakdown"></dl>
+          </section>
+
+          <section class="result-card insight">
+            <h3>یادداشت</h3>
+            <p>نسبت مشارکت به وزن بسته‌ها، پیچیدگی و تقسیم درصدی مستقیم یا زیربخشی، مدیریت و بازاریابی وابسته است. ضرایبی که به کل پروژه یکسان اعمال می‌شوند (دلار، نوع مشتری، فوریت و…) در نسبت‌ها اثر ندارند و در ماشین‌حساب قیمت‌گذاری محاسبه می‌شوند.</p>
+          </section>
+        </aside>
+
+        <section class="invoice-area" id="reportArea">
+          <article class="invoice-card" id="reportCard">
+            <div class="invoice-head">
+              <div>
+                <p class="eyebrow">گزارش سهم مشارکت</p>
+                <h2 id="reportTitle">پروژه</h2>
+              </div>
+              <div class="invoice-total">
+                <span>مبلغ پروژه</span>
+                <strong id="reportAmount">—</strong>
+              </div>
+            </div>
+
+            <div class="invoice-meta">
+              <div><span>کارفرما</span><strong id="reportClient">—</strong></div>
+              <div><span>تاریخ</span><strong id="reportDate">—</strong></div>
+              <div><span>صندوق استودیو</span><strong id="reportFund">—</strong></div>
+            </div>
+
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th>عضو</th>
+                  <th>امتیاز خام</th>
+                  <th>نسبت مشارکت</th>
+                  <th>سهم مالی</th>
+                </tr>
+              </thead>
+              <tbody id="reportMembersBody">
+                <tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+
+            <table class="invoice-table">
+              <thead>
+                <tr>
+                  <th>بسته‌ی کاری</th>
+                  <th>مبنا</th>
+                  <th>وزن</th>
+                  <th>تقسیم</th>
+                </tr>
+              </thead>
+              <tbody id="reportPackagesBody">
+                <tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+              </tbody>
+            </table>
+
+            <p class="invoice-note">توضیح: وزن هر بسته از تعرفه‌ی پایه‌ی نرخ‌نامه‌ی انجمن صنفی طراحان گرافیک ایران (یا ارزش معادل توافقی برای بسته‌های خارج از نرخ‌نامه) × تعداد × ضریب پیچیدگی محاسبه شده و امتیاز هر عضو بر اساس سهم مستقیم یا سهم او در زیربخش‌های وزن‌دار، نرمال شده است. تقسیم مالی طبق منشور همکاری استودیو انجام می‌شود؛ مدیریت پروژه و بازاریابی نیز در صورت فعال بودن، به‌عنوان بسته‌های درصدی از جمع وزن کارها اضافه می‌شوند.</p>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
